@@ -1,2 +1,4 @@
-model/
-vocoder/
+/model/
+/download/
+/.venv/
+/source/

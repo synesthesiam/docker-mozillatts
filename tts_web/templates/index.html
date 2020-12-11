@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>MozillaTTS</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <style>
+      body {
+        padding-top: 0;
+      }
+      @media (min-width: 992px) {
+        body {
+          padding-top: 0;
+        }
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <a href="https://github.com/mozilla/TTS"><img style="position: absolute; z-index:1000; top: 0; left: 0; border: 0;" src="img/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+
+    <!-- Page Content -->
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <img class="mt-5" src="img/logo.png" alt=></img>
+          <h1 class="mt-3">MozillaTTS</h1>
+          <input id="text" placeholder="Type here..." size=45 type="text" name="text">
+          <button id="speak-button" name="speak">Speak</button>
+
+          <br><br>
+          <audio id="audio" controls autoplay hidden></audio>
+          <p id="message"></p>
+        </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <ul>
+                  <li>
+                      <strong>Language:</strong> {{ config.get("phoneme_language", "?") }}
+                  </li>
+                  <li>
+                      <strong>Sample Rate:</strong> {{ vocoder_config["audio"]["sample_rate"] if vocoder_config else config["audio"]["sample_rate"] }} Hz
+                  </li>
+              </ul>
+          </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script>
+            function q(selector) {return document.querySelector(selector)}
+            q('#text').focus()
+            function do_tts(e) {
+                text = q('#text').value
+                if (text) {
+                    q('#message').textContent = 'Synthesizing...'
+                    q('#speak-button').disabled = true
+                    q('#audio').hidden = true
+                    synthesize(text)
+                }
+                e.preventDefault()
+                return false
+            }
+            q('#speak-button').addEventListener('click', do_tts)
+            q('#text').addEventListener('keyup', function(e) {
+              if (e.keyCode == 13) { // enter
+                do_tts(e)
+              }
+            })
+            function synthesize(text) {
+                fetch('/api/tts?text=' + encodeURIComponent(text), {cache: 'no-cache'})
+                    .then(function(res) {
+                        if (!res.ok) throw Error(res.statusText)
+                            return res.blob()
+                        }).then(function(blob) {
+                            q('#message').textContent = ''
+                            q('#speak-button').disabled = false
+                            q('#audio').src = URL.createObjectURL(blob)
+                            q('#audio').hidden = false
+                        }).catch(function(err) {
+                            q('#message').textContent = 'Error: ' + err.message
+                            q('#speak-button').disabled = false
+                        })
+            }
+        </script>
+
+  </body>
+
+</html>
