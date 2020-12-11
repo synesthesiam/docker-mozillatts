@@ -1,19 +1,46 @@
 # Mozilla TTS
 
-Docker image for [Mozilla TTS](https://github.com/mozilla/TTS).
+Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS).
 
-Includes [@erogol's](https://github.com/erogol) pre-built LJSpeech Tacotron2 English model and Multiband MelGAN vocoder.
-See [below](#building-yourself) for links to specific checkpoints.
+Supported languages (see [Released Models](https://github.com/mozilla/TTS/wiki/Released-Models)):
+
+* U.S. English (`en`)
+    * [Tacotron2 DDC model trained from LJSpeech](https://drive.google.com/drive/folders/1Y_0PcB7W6apQChXtbt6v3fAiNwVf4ER5?usp=sharing)
+    * [Multi-band MelGAN vocoder trained from LJSpeech](https://drive.google.com/drive/folders/1XeRT0q4zm5gjERJqwmX5w84pMrD00cKD?usp=sharing)
+* Spanish (`es`)
+    * [Tacotron2 DDC model trained from M-AILabs](https://drive.google.com/drive/folders/1HxFUHQl6REh8CifOXL8IMlIyR9SDVcdu?usp=sharing)
+    * [Full-band MelGAN vocoder trained from LibriTTS](https://drive.google.com/drive/folders/1LKAKOWqtUpiWr2Go3j5DFEFpUoQbW24C?usp=sharing)
+    * [Notebook](https://colab.research.google.com/drive/1u_16ZzHjKYFn1HNVuA4Qf_i2MMFB9olY?usp=sharing)
+* French (`fr`)
+    * [Tacotron2 DDC model trained from M-AILabs](https://colab.research.google.com/drive/16T5avz3zOUNcIbF_dwfxnkZDENowx-tZ?usp=sharing)
+    * [Full-band MelGAN vocoder trained from LibriTTS](https://drive.google.com/drive/folders/1LKAKOWqtUpiWr2Go3j5DFEFpUoQbW24C?usp=sharing)
+    * [Notebook](https://colab.research.google.com/drive/16T5avz3zOUNcIbF_dwfxnkZDENowx-tZ?usp=sharing)
+* German (`de`)
+    * [Tacotron2 DDC model](https://colab.research.google.com/drive/1SPl226SwzrfMZltrVagIXya_ax4CsMh-?usp=sharing) trained from [Thorsten dataset](https://github.com/thorstenMueller/deep-learning-german-tts/)
+    * [Parallel WaveGAN model](https://colab.research.google.com/drive/1SPl226SwzrfMZltrVagIXya_ax4CsMh-?usp=sharing) trained from same dataset
+    * **Note:** due to a mistake at training configuration, this model does not read numbers written in digit form.
+
+Supported platforms:
+
+* `x86_64`
+    * GPU is not supported (no CUDA or GPU-enabled PyTorch)
+    * If your CPU does not support AVX instructions (Celeron, etc.), use `<DOCKER-IMAGE>-noavx` (e.g., `synestheisam/mozilla-tts:en-noavx`)
+* `armv7`
+    * Raspberry Pi 2/3/4 (32-bit)
+* `arm64`
+    * Raspberry Pi 2/3/4 (64-bit)
 
 ## Using
 
 ```sh
-$ docker run -it -p 5002:5002 synesthesiam/mozillatts
+$ docker run -it -p 5002:5002 synesthesiam/mozillatts-<LANGUAGE>
 ```
+
+where `<LANGUAGE>` is one of the supported languages (`en`, `es`, `fr`, `de`). If no language is given, U.S. English is used.
 
 Visit http://localhost:5002 for web interface.
 
-Do HTTP GET at http://localhost:5002/api/tts?text=your%20sentence to get WAV audio back:
+Do an HTTP GET at http://localhost:5002/api/tts?text=your%20sentence to get WAV audio back:
 
 ```sh
 $ curl -G --output - \
@@ -22,13 +49,78 @@ $ curl -G --output - \
     aplay
 ```
 
-## Building Yourself
+HTTP POST is also supported:
 
-The Docker image is built using [these instructions](https://colab.research.google.com/drive/1u_16ZzHjKYFn1HNVuA4Qf_i2MMFB9olY?usp=sharing#scrollTo=FuWxZ9Ey5Puj). You'll need to manually download the model and vocoder checkpoints/configs:
+```sh
+$ curl -X POST --output - \
+    --data 'Welcome to the world of speech synthesis!' \
+    'http://localhost:5002/api/tts' | \
+    aplay
+```
 
-* [`model/config.json`](https://drive.google.com/uc?id=18CQ6G6tBEOfvCHlPqP8EBI4xWbrr9dBc)
-* [`model/checkpoint_130000.pth.tar`](https://drive.google.com/uc?id=1dntzjWFg7ufWaTaFy80nRz-Tu02xWZos)
-* [`vocoder/config.json`](https://drive.google.com/uc?id=1Rd0R_nRCrbjEdpOwq6XwZAktvugiBvmu)
-* [`vocoder/checkpoint_1450000.pth.tar`](https://drive.google.com/uc?id=1Ty5DZdOc0F7OTGj9oJThYbL5iVu_2G0K)
+A `/process` endpoint is available for compatibility with [MaryTTS](http://mary.dfki.de/). Expose the correct port (59125) for maximum compatibility:
+
+```sh
+$ docker run -it -p 59125:5002 synesthesiam/mozillatts
+```
+
+You should now be able to use software like the [Home Assistant MaryTTS integration](https://www.home-assistant.io/integrations/marytts/).
+
+## Custom Model
+
+The Docker image is usually built with [buildx](https://docs.docker.com/buildx/working-with-buildx/) for multi-platform support. If you just want to build an image for one platform, you can do this:
+
+```sh
+$ NOBUILDX=1 LANGUAGE=en scripts/build-docker.sh
+```
+
+When you set a `LANGUAGE`, the build script looks in `model/<LANGUAGE>`. These files should exist:
+
+* `model/<LANGUAGE>/config.json`
+* `model/<LANGUAGE>/checkpoint.pth.tar` (any name that ends in `.pth.tar` is fine)
+* `model/<LANGUAGE>/scale_stats.npy` (optional)
+
+Optionally, you may also include a vocoder:
+
+* `model/<LANGUAGE>/vocoder/config.json`
+* `model/<LANGUAGE>/vocoder/checkpoint.pth.tar` (any name that ends in `.pth.tar` is fine)
+* `model/<LANGUAGE>/vocoder/scale_stats.npy` (optional)
+
+If the sample rates between the model and vocoder don't match, the audio will be [interpolated](https://github.com/mozilla/TTS/issues/520).
+
+### Use Docker buildx
+
+To use `buildx`, you'll need to [enable experimental features](https://docs.docker.com/buildx/working-with-buildx/) in the Docker CLI and then set up a private registry:
+
+```sh
+$ docker run -d -p 15555:5000 --name registry --restart=always registry:2
+```
+
+This registry runs on port 15555. Next, create a configuration file at `/etc/docker/buildx.conf` with this inside:
+
+```
+[registry."localhost:15555"]
+  http = true
+  insecure = true
+```
+
+Note the same port number (15555). Finally, run the following commands to create a builder:
+
+```sh
+$ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+$ docker buildx create --config /etc/docker/buildx.conf --use --name mybuilder
+$ docker buildx use mybuilder
+$ docker buildx inspect --bootstrap
+```
+
+For some reason, these have to be run again **after every reboot** and will sometimes require removing the builder first.
+
+If all is well, you can build for specific platforms like this:
+
+```sh
+$ PLATFORMS=linux/arm/v7 LANGUAGE=en DOCKER_REGISTRY=localhost:15555 scripts/build-docker.sh
+```
+
+Note that the limiting factor for most platforms is a compiled PyTorch wheel. Pre-built wheels are available [here](https://github.com/synesthesiam/prebuilt-apps/releases) for ARM and PyTorch 1.6.0. Put wheels in the `download` directory before building.
 
 
