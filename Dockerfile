@@ -1,4 +1,4 @@
-FROM python:3.7 as build
+FROM debian:buster-slim as build
 
 ENV LANG C.UTF-8
 
@@ -8,7 +8,13 @@ ENV LANG C.UTF-8
 
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends \
-        espeak libsndfile1 git
+        build-essential \
+        python3 python3-dev python3-pip python3-venv python3-setuptools \
+        espeak libsndfile1 git \
+        llvm-7-dev libatlas-base-dev libopenblas-dev gfortran \
+        ca-certificates
+
+ENV LLVM_CONFIG=/usr/bin/llvm-config-7
 
 COPY source/ /source/
 
@@ -41,14 +47,13 @@ COPY download/ /download/
 
 RUN ${VENV}/bin/pip3 install -f /download --no-index --no-deps 'torch==1.6.0' || true
 
-# Install the rest of the requirements (excluding tensorflow)
+# Install the rest of the requirements
 RUN cd /app/TTS && \
-    grep -v 'tensorflow' requirements.txt > requirements_notf.txt && \
-    ${VENV}/bin/pip3 install -f /download -r requirements_notf.txt
+    if [ -f /download/requirements.txt ]; then cp /download/requirements.txt . ; fi && \
+    ${VENV}/bin/pip3 install -f /download -r requirements.txt
 
 # Install MozillaTTS itself
 RUN cd /app/TTS && \
-    mv requirements_notf.txt requirements.txt && \
     ${VENV}/bin/python3 setup.py install
 
 # Packages needed for web server
@@ -56,10 +61,18 @@ RUN ${VENV}/bin/pip3 install -f download/ 'flask' 'flask-cors'
 
 # -----------------------------------------------------------------------------
 
-FROM python:3.7-slim
+FROM debian:buster-slim
+
+ENV LANG C.UTF-8
+
+# IFDEF PROXY
+#! RUN echo 'Acquire::http { Proxy "http://${APT_PROXY_HOST}:${APT_PROXY_PORT}"; };' >> /etc/apt/apt.conf.d/01proxy
+# ENDIF
 
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends \
+        python3 python3-distutils python3-llvmlite libpython3.7 \
+        espeak libsndfile1 git \
         espeak \
         libsndfile1 libgomp1 libatlas3-base libgfortran4 libopenblas-base \
         libnuma1

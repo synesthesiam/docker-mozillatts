@@ -10,7 +10,7 @@ mkdir -p "${download}"
 
 # -----------------------------------------------------------------------------
 
-: "${PLATFORMS=linux/amd64}"
+: "${PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7}"
 : "${DOCKER_REGISTRY=docker.io}"
 
 : "${LANGUAGE=en}"
@@ -61,17 +61,20 @@ if [[ "${LANGUAGE}" -eq 'en' ]]; then
     tags+=(--tag "${DOCKER_REGISTRY}/synesthesiam/mozillatts:latest${TAG_POSTFIX}")
 fi
 
-docker build \
-       "${src_dir}" \
-       -f "${DOCKERFILE}" \
-       --build-arg "LANGUAGE=${LANGUAGE}" \
-       "${tags[@]}" \
-       "$@"
-
-# docker buildx build \
-#         "${src_dir}" \
-#         -f "${DOCKERFILE}" \
-#         "--platform=${PLATFORMS}" \
-#         "${tags[@]}" \
-#         --push \
-#         "$@"
+if [[ -n "${NOBUILDX}" ]]; then
+    docker build \
+        "${src_dir}" \
+        -f "${DOCKERFILE}" \
+        --build-arg "LANGUAGE=${LANGUAGE}" \
+        "${tags[@]}" \
+        "$@"
+else
+    docker buildx build \
+           "${src_dir}" \
+           -f "${DOCKERFILE}" \
+           "--platform=${PLATFORMS}" \
+           --build-arg "LANGUAGE=${LANGUAGE}" \
+           "${tags[@]}" \
+           --push \
+           "$@"
+fi
