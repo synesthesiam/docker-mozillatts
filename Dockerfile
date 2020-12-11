@@ -77,6 +77,10 @@ RUN apt-get update && \
         libsndfile1 libgomp1 libatlas3-base libgfortran4 libopenblas-base \
         libnuma1
 
+# IFDEF PROXY
+#! RUN rm -f /etc/apt/apt.conf.d/01proxy
+# ENDIF
+
 COPY --from=build /app/venv/ /app/
 
 ARG LANGUAGE=en
