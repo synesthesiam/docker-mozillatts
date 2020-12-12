@@ -1,6 +1,6 @@
 # Mozilla TTS
 
-Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS).
+Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS). Many thanks to [erogol](https://github.com/erogol)!
 
 Supported languages (see [Released Models](https://github.com/mozilla/TTS/wiki/Released-Models)):
 
@@ -24,11 +24,15 @@ Supported platforms:
 
 * `x86_64`
     * GPU is not supported (no CUDA or GPU-enabled PyTorch)
-    * If your CPU does not support AVX instructions (Celeron, etc.), use `<DOCKER-IMAGE>-noavx` (e.g., `synestheisam/mozilla-tts:en-noavx`)
+    * If your CPU does not support AVX instructions (Celeron, etc.), use `synesthesiam/mozillatts:<LANGUAGE>-noavx` (e.g., `synestheisam/mozillatts:en-noavx`)
 * `armv7`
-    * Raspberry Pi 2/3/4 (32-bit)
+    * Raspberry Pi 2/3/4 (32-bit
 * `arm64`
     * Raspberry Pi 2/3/4 (64-bit)
+    
+### RAM Limitations
+
+If you're running on a Raspberry Pi with only 1 GB of RAM, you may be unable to load some of the larger models without increasing your swap space. To do this, simply edit the `/etc/dphys-swapfile` file (with `sudo`) and increase `CONF_SWAPSIZE` (1000 is recommended, value is MB). Make sure to reboot after editing this file.
 
 ## Using
 
