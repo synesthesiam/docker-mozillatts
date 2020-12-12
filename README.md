@@ -1,6 +1,6 @@
 # Mozilla TTS
 
-Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS). Many thanks to [erogol](https://github.com/erogol)!
+Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS). Many thanks to [erogol](https://github.com/erogol) and [the community](https://discourse.mozilla.org/c/tts/285)!
 
 Supported languages (see [Released Models](https://github.com/mozilla/TTS/wiki/Released-Models)):
 
