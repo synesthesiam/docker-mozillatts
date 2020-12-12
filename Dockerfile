@@ -75,6 +75,7 @@ RUN apt-get update && \
         espeak libsndfile1 git \
         espeak \
         libsndfile1 libgomp1 libatlas3-base libgfortran4 libopenblas-base \
+        libjbig0 liblcms2-2 libopenjp2-7 libtiff5 libwebp6 libwebpdemux2 libwebpmux3 \
         libnuma1
 
 # IFDEF PROXY

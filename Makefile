@@ -8,6 +8,6 @@ everything:
       export LANGUAGE=$$lang; \
       scripts/build-docker.sh; \
       if [[ $$lang -eq en ]]; then \
-        NOAVX=1 scripts/build-docker.sh; \
+        NOAVX=1 PLATFORMS=linux/amd64 scripts/build-docker.sh; \
       fi; \
     done

@@ -57,7 +57,7 @@ fi
 
 tags=(--tag "${DOCKER_REGISTRY}/synesthesiam/mozillatts:${LANGUAGE}${TAG_POSTFIX}")
 
-if [[ "${LANGUAGE}" -eq 'en' ]]; then
+if [[ "${LANGUAGE}" == 'en' && -z "${NOAVX}" ]]; then
     tags+=(--tag "${DOCKER_REGISTRY}/synesthesiam/mozillatts:latest${TAG_POSTFIX}")
 fi
 
