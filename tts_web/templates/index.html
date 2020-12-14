@@ -36,13 +36,21 @@
         <div class="col-lg-12 text-center">
           <img class="mt-5" src="img/logo.png" alt=></img>
           <h1 class="mt-3">MozillaTTS</h1>
-          <input id="text" placeholder="Type here..." size=45 type="text" name="text">
-          <button id="speak-button" name="speak">Speak</button>
-
-          <br><br>
-          <audio id="audio" controls autoplay hidden></audio>
-          <p id="message"></p>
         </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea id="text" placeholder="Type here..." class="form-control" rows="3" name="text"></textarea>
+        </div>
+        <div class="col-auto">
+          <button id="speak-button" name="speak" class="btn btn-lg btn-primary">Speak</button>
+        </div>
+      </div>
+      <div class="row mt-3">
+          <div class="col text-center">
+              <audio id="audio" controls autoplay hidden></audio>
+              <p id="message"></p>
+          </div>
       </div>
       <div class="row">
           <div class="col">
@@ -74,11 +82,6 @@
                 return false
             }
             q('#speak-button').addEventListener('click', do_tts)
-            q('#text').addEventListener('keyup', function(e) {
-              if (e.keyCode == 13) { // enter
-                do_tts(e)
-              }
-            })
             function synthesize(text) {
                 fetch('/api/tts?text=' + encodeURIComponent(text), {cache: 'no-cache'})
                     .then(function(res) {

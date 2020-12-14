@@ -56,7 +56,7 @@ $ curl -G --output - \
 HTTP POST is also supported:
 
 ```sh
-$ curl -X POST --output - \
+$ curl -X POST -H 'Content-Type: text/plain' --output - \
     --data 'Welcome to the world of speech synthesis!' \
     'http://localhost:5002/api/tts' | \
     aplay
