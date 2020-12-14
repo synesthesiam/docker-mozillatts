@@ -2,6 +2,8 @@
 
 Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS). Many thanks to [erogol](https://github.com/erogol) and [the community](https://discourse.mozilla.org/c/tts/285)!
 
+![Screenshot of web interface](web_screenshot.png)
+
 Supported languages (see [Released Models](https://github.com/mozilla/TTS/wiki/Released-Models)):
 
 * U.S. English (`en`)
