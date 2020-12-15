@@ -14,6 +14,7 @@ from pathlib import Path
 import TTS
 from flask import Flask, Response, render_template, request, send_from_directory
 from flask_cors import CORS
+from urllib.parse import parse_qs
 
 from .synthesize import Synthesizer
 
@@ -144,7 +145,8 @@ def get_app(
     def api_process():
         """MaryTTS-compatible /process endpoint"""
         if request.method == "POST":
-            text = request.get_data(as_text=True)
+            data = parse_qs(request.get_data(as_text=True))
+            text = data.get("INPUT_TEXT", [""])[0]
         else:
             text = request.args.get("INPUT_TEXT", "")
 
