@@ -39,8 +39,8 @@ RUN ${VENV}/bin/pip3 install --upgrade 'pip==20.3.1' && \
     ${VENV}/bin/pip3 install --upgrade wheel setuptools
 
 # Target architecture
-ARG TARGETARCH=amd64
-ARG TARGETVARIANT=
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 # Copy shared and architecture-specific files
 COPY download/shared/ /download/
