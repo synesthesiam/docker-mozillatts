@@ -62,13 +62,47 @@ if [[ "${LANGUAGE}" == 'en' && -z "${NOAVX}" ]]; then
 fi
 
 if [[ -n "${NOBUILDX}" ]]; then
+    # Don't use docker buildx (single platform)
+
+    if [[ -z "${TARGETARCH}" ]]; then
+        # Guess architecture
+        cpu_arch="$(uname -m)"
+        case "${cpu_arch}" in
+            armv6l)
+                export TARGETARCH=arm
+                export TARGETVARIANT=v6
+                ;;
+
+            armv7l)
+                export TARGETARCH=arm
+                export TARGETVARIANT=v7
+                ;;
+
+            aarch64|arm64v8)
+                export TARGETARCH=arm64
+                export TARGETVARIANT=''
+                ;;
+
+            *)
+                # Assume x86_64
+                export TARGETARCH=amd64
+                export TARGETVARIANT=''
+                ;;
+        esac
+
+        echo "Guessed architecture: ${TARGETARCH}${TARGETVARIANT}"
+    fi
+
     docker build \
         "${src_dir}" \
         -f "${DOCKERFILE}" \
         --build-arg "LANGUAGE=${LANGUAGE}" \
+        --build-arg "TARGETARCH=${TARGETARCH}" \
+        --build-arg "TARGETVARIANT=${TARGETVARIANT}" \
         "${tags[@]}" \
         "$@"
 else
+    # Use docker buildx (multi-platform)
     docker buildx build \
            "${src_dir}" \
            -f "${DOCKERFILE}" \

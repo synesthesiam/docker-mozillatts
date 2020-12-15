@@ -35,16 +35,22 @@ RUN python3 -m venv ${VENV}
 # ENDIF
 
 # Set up Python virtual environment
-RUN ${VENV}/bin/pip3 install --upgrade pip && \
+RUN ${VENV}/bin/pip3 install --upgrade 'pip==20.3.1' && \
     ${VENV}/bin/pip3 install --upgrade wheel setuptools
 
-# Install torch from local cache if present
-COPY download/ /download/
+# Target architecture
+ARG TARGETARCH=amd64
+ARG TARGETVARIANT=
+
+# Copy shared and architecture-specific files
+COPY download/shared/ /download/
+COPY download/${TARGETARCH}${TARGETVARIANT}/ /download/
 
 # IFDEF NOAVX
 #! RUN mv download/noavx/* download/
 # ENDIF
 
+# Install torch from local cache if present
 RUN ${VENV}/bin/pip3 install -f /download --no-index --no-deps 'torch==1.6.0' || true
 
 # Install the rest of the requirements

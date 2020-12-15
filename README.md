@@ -71,6 +71,7 @@ $ docker run -it -p 59125:5002 synesthesiam/mozillatts
 ```
 
 You should now be able to use software like the [Home Assistant MaryTTS integration](https://www.home-assistant.io/integrations/marytts/).
+Note that only the `INPUT_TEXT` field is actually used.
 
 ## Custom Model
 
@@ -93,6 +94,12 @@ Optionally, you may also include a vocoder:
 * `model/<LANGUAGE>/vocoder/scale_stats.npy` (optional)
 
 If the sample rates between the model and vocoder don't match, the audio will be [interpolated](https://github.com/mozilla/TTS/issues/520).
+
+### Docker Download Cache
+
+When building the Docker image, the `download` directory may contain architecture-specific Python wheels. The `download/amd64` directory, for example, will be used with pip's `--find-links` on `x86_64` systems. If the `NOAVX` environment variable is not empty, then wheels in `download/<ARCHITECTURE>/noavx` will overwrite those in the parent directory.
+
+The `download/shared` directory is used for all architectures. If a `requirements.txt` file is present there, it is used to install dependencies for MozillaTTS. This can be used to exclude Tensorflow, etc., or to use specific package versions.
 
 ### Use Docker buildx
 
