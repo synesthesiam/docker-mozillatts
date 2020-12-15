@@ -9,3 +9,4 @@ __pycache__/
 /download/armv7/noavx/*.whl
 /download/arm64/*.whl
 /download/arm64/noavx/*.whl
+/download/shared/*.whl
