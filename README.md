@@ -39,7 +39,7 @@ If you're running on a Raspberry Pi with only 1 GB of RAM, you may be unable to 
 ## Using
 
 ```sh
-$ docker run -it -p 5002:5002 synesthesiam/mozillatts-<LANGUAGE>
+$ docker run -it -p 5002:5002 synesthesiam/mozillatts:<LANGUAGE>
 ```
 
 where `<LANGUAGE>` is one of the supported languages (`en`, `es`, `fr`, `de`). If no language is given, U.S. English is used.
