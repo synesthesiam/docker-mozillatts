@@ -1,6 +1,6 @@
 /model/
 /.venv/
-/source/
+/source/*.tar.gz
 __pycache__/
 
 /download/amd64/*.whl
