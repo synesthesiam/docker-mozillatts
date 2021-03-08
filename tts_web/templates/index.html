@@ -46,6 +46,12 @@
           <button id="speak-button" name="speak" class="btn btn-lg btn-primary">Speak</button>
         </div>
       </div>
+      <div class="row">
+          <div class="col">
+              <input id="lines-are-sentences" type="checkbox" checked>
+              <label for="lines-are-sentences" class="col-form-label">Synthesize each line separately.</label>
+          </div>
+      </div>
       <div class="row mt-3">
           <div class="col text-center">
               <audio id="audio" controls autoplay hidden></audio>
@@ -82,8 +88,17 @@
                 return false
             }
             q('#speak-button').addEventListener('click', do_tts)
+
+            var linesAreSentences = 'true';
+            if (!q('#lines-are-sentences').checked) {
+                linesAreSentences = 'false';
+            }
+
             function synthesize(text) {
-                fetch('/api/tts?text=' + encodeURIComponent(text), {cache: 'no-cache'})
+                fetch('/api/tts?linesAreSentences=' +
+                      linesAreSentences +
+                      '&text=' + encodeURIComponent(text), {cache: 'no-cache'})
+
                     .then(function(res) {
                         if (!res.ok) throw Error(res.statusText)
                             return res.blob()

@@ -41,7 +41,7 @@ def get_app(
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-    def text_to_wav(text: str) -> bytes:
+    def text_to_wav(text: str, lines_are_sentences: bool = True) -> bytes:
         _LOGGER.debug("Text: %s", text)
 
         wav_bytes: typing.Optional[bytes] = None
@@ -61,6 +61,13 @@ def get_app(
             _LOGGER.info("Synthesizing (%s char(s))...", len(text))
             start_time = time.time()
 
+            if lines_are_sentences:
+                # Each line will be synthesized separately
+                lines = text.strip().splitlines()
+            else:
+                # Entire text will be synthesized as one utterance
+                lines = [text]
+
             # Synthesize each line separately.
             # Accumulate into a single WAV file.
             with io.BytesIO() as wav_io:
@@ -69,7 +76,7 @@ def get_app(
                     wav_file.setsampwidth(2)
                     wav_file.setnchannels(1)
 
-                    for line_index, line in enumerate(text.strip().splitlines()):
+                    for line_index, line in enumerate(lines):
                         line = line.strip()
                         if not line:
                             # Skip blank lines
@@ -146,7 +153,11 @@ def get_app(
         else:
             text = request.args.get("text")
 
-        wav_bytes = text_to_wav(text)
+        lines_are_sentences = (
+            request.args.get("linesAreSentences", "true").strip().lower() == "true"
+        )
+
+        wav_bytes = text_to_wav(text, lines_are_sentences=lines_are_sentences)
 
         return Response(wav_bytes, mimetype="audio/wav")
 
