@@ -3,13 +3,10 @@ import io
 import json
 import logging
 import os
-import sys
 import time
 import typing
-import unittest.mock
 
 import torch
-
 from TTS.tts.utils.generic_utils import setup_model
 from TTS.tts.utils.synthesis import synthesis
 from TTS.tts.utils.text.symbols import make_symbols

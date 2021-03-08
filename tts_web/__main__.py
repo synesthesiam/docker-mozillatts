@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 """Web server for synthesis"""
 import argparse
+import asyncio
 import hashlib
 import io
 import logging
+import signal
 import sys
 import time
 import typing
 import uuid
 import wave
 from pathlib import Path
+from urllib.parse import parse_qs
+
+import hypercorn
+import quart_cors
+from quart import Quart, Response, render_template, request, send_from_directory
 
 import TTS
-from flask import Flask, Response, render_template, request, send_from_directory
-from flask_cors import CORS
-from urllib.parse import parse_qs
 
 from .synthesize import Synthesizer
 
@@ -22,6 +26,7 @@ sys.modules["mozilla_voice_tts"] = TTS
 
 _DIR = Path(__file__).parent
 _LOGGER = logging.getLogger("mozillatts")
+_LOOP = asyncio.get_event_loop()
 
 # -----------------------------------------------------------------------------
 
@@ -29,7 +34,7 @@ _LOGGER = logging.getLogger("mozillatts")
 def get_app(
     synthesizer: Synthesizer, cache_dir: typing.Optional[typing.Union[str, Path]] = None
 ):
-    """Create Flask app and endpoints"""
+    """Create Quart app and endpoints"""
     sample_rate = synthesizer.sample_rate
 
     if cache_dir:
@@ -107,13 +112,13 @@ def get_app(
 
     # -------------------------------------------------------------------------
 
-    app = Flask("mozillatts", template_folder=str(_DIR / "templates"))
+    app = Quart("mozillatts", template_folder=str(_DIR / "templates"))
     app.secret_key = str(uuid.uuid4())
-    CORS(app)
+    app = quart_cors.cors(app)
 
     @app.route("/")
-    def app_index():
-        return render_template(
+    async def app_index():
+        return await render_template(
             "index.html",
             config=synthesizer.config,
             vocoder_config=synthesizer.vocoder_config,
@@ -122,16 +127,16 @@ def get_app(
     css_dir = _DIR / "css"
 
     @app.route("/css/<path:filename>", methods=["GET"])
-    def css(filename) -> Response:
+    async def css(filename) -> Response:
         """CSS static endpoint."""
-        return send_from_directory(css_dir, filename)
+        return await send_from_directory(css_dir, filename)
 
     img_dir = _DIR / "img"
 
     @app.route("/img/<path:filename>", methods=["GET"])
-    def img(filename) -> Response:
+    async def img(filename) -> Response:
         """Image static endpoint."""
-        return send_from_directory(img_dir, filename)
+        return await send_from_directory(img_dir, filename)
 
     @app.route("/api/tts", methods=["GET", "POST"])
     def api_tts():
@@ -274,9 +279,35 @@ def main():
 
     synthesizer.load()
 
-    # Create Flask web app
+    # Create Quart web app
     app = get_app(synthesizer, cache_dir=args.cache_dir)
-    app.run(host=args.host, port=args.port)
+
+    # -------------------------------------------------------------------------
+
+    # Run Hypercorn web server
+    hyp_config = hypercorn.config.Config()
+    hyp_config.bind = [f"{args.host}:{args.port}"]
+
+    # Create shutdown event for Hypercorn
+    shutdown_event = asyncio.Event()
+
+    def _signal_handler(*_: typing.Any) -> None:
+        """Signal shutdown to Hypercorn"""
+        shutdown_event.set()
+
+    _LOOP.add_signal_handler(signal.SIGTERM, _signal_handler)
+
+    try:
+        # Need to type cast to satisfy mypy
+        shutdown_trigger = typing.cast(
+            typing.Callable[..., typing.Awaitable[None]], shutdown_event.wait
+        )
+
+        _LOOP.run_until_complete(
+            hypercorn.asyncio.serve(app, hyp_config, shutdown_trigger=shutdown_trigger)
+        )
+    except KeyboardInterrupt:
+        _LOOP.call_soon(shutdown_event.set)
 
 
 # -----------------------------------------------------------------------------

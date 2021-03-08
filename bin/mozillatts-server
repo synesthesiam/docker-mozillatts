@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Directory of *this* script
+this_dir="$( cd "$( dirname "$0" )" && pwd )"
+src_dir="$(realpath "${this_dir}/..")"
+
+venv="${src_dir}/.venv"
+if [[ -d "${venv}" ]]; then
+    echo "Using virtual environment at ${venv}" >&2
+    source "${venv}/bin/activate"
+fi
+
+export PYTHONPATH="${src_dir}"
+python3 -m tts_web "$@"

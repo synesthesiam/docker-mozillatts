@@ -2,6 +2,7 @@
 /.venv/
 /source/*.tar.gz
 __pycache__/
+/TTS/
 
 /download/amd64/*.whl
 /download/amd64/noavx/*.whl

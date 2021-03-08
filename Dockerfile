@@ -63,7 +63,7 @@ RUN cd /app/TTS && \
     ${VENV}/bin/python3 setup.py install
 
 # Packages needed for web server
-RUN ${VENV}/bin/pip3 install -f download/ 'flask' 'flask-cors'
+RUN ${VENV}/bin/pip3 install -f download/ 'quart' 'quart-cors'
 
 # -----------------------------------------------------------------------------
 
