@@ -26,9 +26,9 @@ Supported platforms:
 
 * `x86_64`
     * GPU is not supported (no CUDA or GPU-enabled PyTorch)
-    * If your CPU does not support AVX instructions (Celeron, etc.), use `synesthesiam/mozillatts:<LANGUAGE>-noavx` (e.g., `synestheisam/mozillatts:en-noavx`)
+    * Your CPU **must** support AVX instructions (no Celeron, etc.)
 * `armv7`
-    * Raspberry Pi 2/3/4 (32-bit
+    * Raspberry Pi 2/3/4 (32-bit)
 * `arm64`
     * Raspberry Pi 2/3/4 (64-bit)
     
@@ -97,7 +97,7 @@ If the sample rates between the model and vocoder don't match, the audio will be
 
 ### Docker Download Cache
 
-When building the Docker image, the `download` directory may contain architecture-specific Python wheels. The `download/amd64` directory, for example, will be used with pip's `--find-links` on `x86_64` systems. If the `NOAVX` environment variable is not empty, then wheels in `download/<ARCHITECTURE>/noavx` will overwrite those in the parent directory.
+When building the Docker image, the `download` directory may contain architecture-specific Python wheels. The `download/amd64` directory, for example, will be used with pip's `--find-links` on `x86_64` systems.
 
 The `download/shared` directory is used for all architectures. If a `requirements.txt` file is present there, it is used to install dependencies for MozillaTTS. This can be used to exclude Tensorflow, etc., or to use specific package versions.
 
