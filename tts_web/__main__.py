@@ -65,6 +65,11 @@ def get_app(
                     wav_file.setnchannels(1)
 
                     for line_index, line in enumerate(text.strip().splitlines()):
+                        line = line.strip()
+                        if not line:
+                            # Skip blank lines
+                            continue
+
                         _LOGGER.debug(
                             "Synthesizing line %s (%s char(s))",
                             line_index + 1,
