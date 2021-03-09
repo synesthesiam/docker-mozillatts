@@ -35,7 +35,7 @@ RUN python3 -m venv ${VENV}
 # ENDIF
 
 # Set up Python virtual environment
-RUN ${VENV}/bin/pip3 install --upgrade 'pip==20.3.1' && \
+RUN ${VENV}/bin/pip3 install --upgrade pip && \
     ${VENV}/bin/pip3 install --upgrade wheel setuptools
 
 # Target architecture
