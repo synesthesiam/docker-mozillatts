@@ -22,4 +22,4 @@ pylint==2.5.3
 gdown
 umap-learn
 cython
-pyyaml==5.3.1
+pyyaml==5.4
