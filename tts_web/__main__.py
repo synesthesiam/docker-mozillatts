@@ -251,6 +251,8 @@ def main():
 
     if not args.config:
         args.config = model_dir / "config.json"
+    else:
+        args.config = Path(args.config)
 
     assert args.config and args.config.is_file(), f"No TTS config file ({args.config})"
 
@@ -273,6 +275,8 @@ def main():
 
         if not args.vocoder_config:
             args.vocoder_config = vocoder_dir / "config.json"
+        else:
+            args.vocoder_config = Path(args.vocoder_config)
 
         assert (
             args.vocoder_config and args.vocoder_config.is_file()
