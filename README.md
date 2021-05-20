@@ -1,3 +1,7 @@
+**NOTE**: Please see [coqui-docker](https://github.com/synesthesiam/coqui-docker/) for docker images of [Coqui TTS](https://github.com/coqui-ai/TTS) (Mozilla TTS's successor)
+
+---
+
 # Mozilla TTS
 
 Multi-platform Docker images for [Mozilla TTS](https://github.com/mozilla/TTS). Many thanks to [erogol](https://github.com/erogol) and [the community](https://discourse.mozilla.org/c/tts/285)!
