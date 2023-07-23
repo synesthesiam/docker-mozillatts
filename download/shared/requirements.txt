@@ -1,4 +1,4 @@
-torch==1.6.0
+torch==1.13.1
 numpy==1.20.1
 scipy==1.5.1
 numba==0.48
